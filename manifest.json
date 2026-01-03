@@ -1,0 +1,24 @@
+{
+  "name": "Calcolatore Potenza Termica",
+  "short_name": "Calcolo Riscaldamento",
+  "description": "Calcola la potenza termica necessaria per riscaldare il tuo ambiente",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

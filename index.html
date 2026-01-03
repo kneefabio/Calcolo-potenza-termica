@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calcola la potenza termica necessaria per riscaldare il tuo ambiente">
+    <meta name="theme-color" content="#f97316">
+    <title>Calcolatore Potenza Termica</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icone per iOS -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Calcolo Riscaldamento">
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8e0 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .header-icon {
+            background: #f97316;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-icon svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+        
+        .header-text h1 {
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .header-text p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+        
+        .toggle-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #f9fafb;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            transition: background 0.2s;
+        }
+        
+        .toggle-button:hover {
+            background: #f3f4f6;
+        }
+        
+        .optional-section {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            padding-top: 28px;
+        }
+        
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: #f97316;
+        }
+        
+        .checkbox-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        .results-card {
+            background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
+        }
+        
+        .results-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .result-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .result-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        
+        .result-value-large {
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .result-value-medium {
+            font-size: 20px;
+            margin-top: 4px;
+        }
+        
+        .result-value-small {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .info-label {
+            opacity: 0.9;
+            margin-bottom: 2px;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .corrections-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .corrections-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .corrections-list {
+            list-style: none;
+            font-size: 14px;
+        }
+        
+        .corrections-list li {
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        
+        .advice-box {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+        }
+        
+        .advice-box p {
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .advice-box strong {
+            font-weight: 600;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 16px;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            opacity: 0.5;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        
+        .install-banner {
+            background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .install-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .install-banner-text {
+            flex: 1;
+        }
+        
+        .install-banner-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .install-banner-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .install-button {
+            background: white;
+            color: #f97316;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .close-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            line-height: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                padding: 16px;
+            }
+            
+            .header-text h1 {
+                font-size: 24px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-card {
+                padding: 20px;
+            }
+            
+            .result-value-large {
+                font-size: 28px;
+            }
+            
+            .install-banner {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .install-banner-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .install-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function HeatingCalculator() {
+            const [showOptional, setShowOptional] = useState(false);
+            const [showInstallBanner, setShowInstallBanner] = useState(false);
+            const [deferredPrompt, setDeferredPrompt] = useState(null);
+            
+            // Parametri essenziali
+            const [length, setLength] = useState('');
+            const [width, setWidth] = useState('');
+            const [height, setHeight] = useState('2.7');
+            const [insulation, setInsulation] = useState('medio');
+            const [climateZone, setClimateZone] = useState('E');
+            
+            // Parametri opzionali
+            const [numWindows, setNumWindows] = useState('1');
+            const [windowArea, setWindowArea] = useState('2');
+            const [glassType, setGlassType] = useState('doppio');
+            const [orientation, setOrientation] = useState('');
+            const [externalWalls, setExternalWalls] = useState('1');
+            const [isCorner, setIsCorner] = useState(false);
+            const [floor, setFloor] = useState('intermedio');
+            const [desiredTemp, setDesiredTemp] = useState('20');
+            const [airChanges, setAirChanges] = useState('0.5');
+            
+            const [result, setResult] = useState(null);
+
+            // Coefficienti base per isolamento (W/m³)
+            const insulationCoeffs = {
+                scarso: 60,
+                medio: 45,
+                buono: 35,
+                ottimo: 25
+            };
+
+            // Temperature esterne di progetto per zona climatica
+            const climateTemps = {
+                A: 5,
+                B: 3,
+                C: 0,
+                D: -2,
+                E: -5,
+                F: -10
+            };
+
+            useEffect(() => {
+                // Gestione installazione PWA
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                    setShowInstallBanner(true);
+                });
+
+                // Nascondi banner se già installata
+                window.addEventListener('appinstalled', () => {
+                    setShowInstallBanner(false);
+                    setDeferredPrompt(null);
+                });
+            }, []);
+
+            useEffect(() => {
+                calculatePower();
+            }, [length, width, height, insulation, climateZone, numWindows, windowArea, 
+                glassType, orientation, externalWalls, isCorner, floor, desiredTemp, airChanges]);
+
+            const handleInstall = async () => {
+                if (!deferredPrompt) return;
+
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    setShowInstallBanner(false);
+                }
+                setDeferredPrompt(null);
+            };
+
+            const calculatePower = () => {
+                if (!length || !width || !height) {
+                    setResult(null);
+                    return;
+                }
+
+                const l = parseFloat(length);
+                const w = parseFloat(width);
+                const h = parseFloat(height);
+                
+                if (l <= 0 || w <= 0 || h <= 0) {
+                    setResult(null);
+                    return;
+                }
+
+                const volume = l * w * h;
+                let coeff = insulationCoeffs[insulation];
+                let corrections = [];
+                
+                // Finestre
+                if (showOptional && numWindows && windowArea) {
+                    const totalWindowArea = parseFloat(numWindows) * parseFloat(windowArea);
+                    const floorArea = l * w;
+                    const windowRatio = totalWindowArea / floorArea;
+                    
+                    if (windowRatio > 0.15) {
+                        const windowCorrection = (windowRatio - 0.15) * 100;
+                        coeff += windowCorrection;
+                        corrections.push(`Superficie finestre elevata: +${windowCorrection.toFixed(1)} W/m³`);
+                    }
+                    
+                    if (glassType === 'singolo') {
+                        coeff += 5;
+                        corrections.push('Vetro singolo: +5 W/m³');
+                    } else if (glassType === 'triplo') {
+                        coeff -= 3;
+                        corrections.push('Vetro triplo: -3 W/m³');
+                    }
+                }
+                
+                // Orientamento
+                if (showOptional && orientation) {
+                    if (orientation === 'nord') {
+                        coeff += 5;
+                        corrections.push('Esposizione nord: +5 W/m³');
+                    } else if (orientation === 'sud') {
+                        coeff -= 3;
+                        corrections.push('Esposizione sud con apporti solari: -3 W/m³');
+                    }
+                }
+                
+                // Pareti esterne
+                if (showOptional && externalWalls) {
+                    const walls = parseInt(externalWalls);
+                    if (walls >= 2) {
+                        const wallCorrection = (walls - 1) * 3;
+                        coeff += wallCorrection;
+                        corrections.push(`${walls} pareti esterne: +${wallCorrection} W/m³`);
+                    }
+                }
+                
+                // Stanza d'angolo
+                if (showOptional && isCorner) {
+                    coeff += 5;
+                    corrections.push('Stanza d\'angolo: +5 W/m³');
+                }
+                
+                // Piano
+                if (showOptional && floor) {
+                    if (floor === 'terra') {
+                        coeff += 5;
+                        corrections.push('Piano terra: +5 W/m³');
+                    } else if (floor === 'ultimo') {
+                        coeff += 7;
+                        corrections.push('Ultimo piano: +7 W/m³');
+                    }
+                }
+                
+                // Altezza soffitto
+                if (h > 3) {
+                    const heightCorrection = (h - 3) * 5;
+                    coeff += heightCorrection;
+                    corrections.push(`Soffitto alto (${h}m): +${heightCorrection.toFixed(1)} W/m³`);
+                }
+                
+                // Differenza di temperatura e ricambi d'aria
+                if (showOptional && desiredTemp && airChanges) {
+                    const extTemp = climateTemps[climateZone];
+                    const intTemp = parseFloat(desiredTemp);
+                    const deltaT = intTemp - extTemp;
+                    const airChange = parseFloat(airChanges);
+                    
+                    const ventilationLoad = volume * airChange * 0.34 * deltaT;
+                    const ventilationCoeff = ventilationLoad / volume;
+                    coeff += ventilationCoeff;
+                    corrections.push(`Ricambi d'aria (${airChange}/h, ΔT=${deltaT}°C): +${ventilationCoeff.toFixed(1)} W/m³`);
+                }
+                
+                const power = volume * coeff;
+                
+                setResult({
+                    volume: volume.toFixed(2),
+                    coefficient: coeff.toFixed(1),
+                    power: power.toFixed(0),
+                    powerKw: (power / 1000).toFixed(2),
+                    corrections: corrections,
+                    floorArea: (l * w).toFixed(2),
+                    specificPower: (power / (l * w)).toFixed(0)
+                });
+            };
+
+            return (
+                <div className="container">
+                    {showInstallBanner && (
+                        <div className="install-banner">
+                            <div className="install-banner-content">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                <div className="install-banner-text">
+                                    <div className="install-banner-title">Installa l'app</div>
+                                    <div className="install-banner-subtitle">Accesso rapido dalla home</div>
+                                </div>
+                            </div>
+                            <button className="install-button" onClick={handleInstall}>
+                                Installa
+                            </button>
+                            <button className="close-button" onClick={() => setShowInstallBanner(false)}>
+                                ×
+                            </button>
+                        </div>
+                    )}
+
+                    <div className="card">
+                        <div className="header">
+                            <div className="header-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                                    <line x1="8" y1="6" x2="16" y2="6"/>
+                                    <line x1="8" y1="10" x2="16" y2="10"/>
+                                    <line x1="8" y1="14" x2="16" y2="14"/>
+                                    <line x1="8" y1="18" x2="12" y2="18"/>
+                                </svg>
+                            </div>
+                            <div className="header-text">
+                                <h1>Calcolo Potenza Termica</h1>
+                                <p>Dimensiona il tuo sistema di riscaldamento</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 className="section-title">Parametri Essenziali</h2>
+                            
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <label className="form-label">Lunghezza (m) *</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        className="form-input"
+                                        value={length}
+                                        onChange={(e) => setLength(e.target.value)}
+                                        placeholder="5.0"
+                                    />
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label className="form-label">Larghezza (m) *</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        className="form-input"
+                                        value={width}
+                                        onChange={(e) => setWidth(e.target.value)}
+                                        placeholder="4.0"
+                                    />
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label className="form-label">Altezza (m) *</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        className="form-input"
+                                        value={height}
+                                        onChange={(e) => setHeight(e.target.value)}
+                                        placeholder="2.7"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <label className="form-label">Isolamento Termico *</label>
+                                    <select
+                                        className="form-select"
+                                        value={insulation}
+                                        onChange={(e) => setInsulation(e.target.value)}
+                                    >
+                                        <option value="scarso">Scarso (edifici vecchi, senza isolamento)</option>
+                                        <option value="medio">Medio (anni '80-'90)</option>
+                                        <option value="buono">Buono (edifici recenti)</option>
+                                        <option value="ottimo">Ottimo (classe A, passivhaus)</option>
+                                    </select>
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label className="form-label">Zona Climatica *</label>
+                                    <select
+                                        className="form-select"
+                                        value={climateZone}
+                                        onChange={(e) => setClimateZone(e.target.value)}
+                                    >
+                                        <option value="A">A - Sud costiero (es. Lampedusa)</option>
+                                        <option value="B">B - Sud interno (es. Palermo)</option>
+                                        <option value="C">C - Centro-Sud (es. Napoli, Bari)</option>
+                                        <option value="D">D - Centro Italia (es. Roma, Firenze)</option>
+                                        <option value="E">E - Nord pianura (es. Milano, Bologna)</option>
+                                        <option value="F">F - Nord montagna (es. Cuneo, Trento)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            className="toggle-button"
+                            onClick={() => setShowOptional(!showOptional)}
+                        >
+                            <span>Parametri Opzionali (per calcolo preciso)</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{transform: showOptional ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s'}}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+
+                        {showOptional && (
+                            <div className="optional-section">
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Numero Finestre</label>
+                                        <input
+                                            type="number"
+                                            className="form-input"
+                                            value={numWindows}
+                                            onChange={(e) => setNumWindows(e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label className="form-label">Area per Finestra (m²)</label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            className="form-input"
+                                            value={windowArea}
+                                            onChange={(e) => setWindowArea(e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label className="form-label">Tipo di Vetri</label>
+                                        <select
+                                            className="form-select"
+                                            value={glassType}
+                                            onChange={(e) => setGlassType(e.target.value)}
+                                        >
+                                            <option value="singolo">Singolo</option>
+                                            <option value="doppio">Doppio</option>
+                                            <option value="triplo">Triplo/Basso emissivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Orientamento Prevalente</label>
+                                        <select
+                                            className="form-select"
+                                            value={orientation}
+                                            onChange={(e) => setOrientation(e.target.value)}
+                                        >
+                                            <option value="">Non specificato</option>
+                                            <option value="nord">Nord</option>
+                                            <option value="sud">Sud</option>
+                                            <option value="est">Est</option>
+                                            <option value="ovest">Ovest</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label className="form-label">Pareti Esterne</label>
+                                        <select
+                                            className="form-select"
+                                            value={externalWalls}
+                                            onChange={(e) => setExternalWalls(e.target.value)}
+                                        >
+                                            <option value="1">1 (stanza interna)</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label className="form-label">Piano Edificio</label>
+                                        <select
+                                            className="form-select"
+                                            value={floor}
+                                            onChange={(e) => setFloor(e.target.value)}
+                                        >
+                                            <option value="terra">Piano terra</option>
+                                            <option value="intermedio">Piano intermedio</option>
+                                            <option value="ultimo">Ultimo piano</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Temperatura Desiderata (°C)</label>
+                                        <input
+                                            type="number"
+                                            step="0.5"
+                                            className="form-input"
+                                            value={desiredTemp}
+                                            onChange={(e) => setDesiredTemp(e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label className="form-label">Ricambi d'Aria (vol/h)</label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            className="form-input"
+                                            value={airChanges}
+                                            onChange={(e) => setAirChanges(e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="checkbox-group">
+                                        <input
+                                            type="checkbox"
+                                            className="checkbox-input"
+                                            id="cornerRoom"
+                                            checked={isCorner}
+                                            onChange={(e) => setIsCorner(e.target.checked)}
+                                        />
+                                        <label htmlFor="cornerRoom" className="checkbox-label">
+                                            Stanza d'angolo
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {result && (
+                            <div className="results-card">
+                                <h2 className="results-title">Risultati del Calcolo</h2>
+                                
+                                <div className="results-grid">
+                                    <div className="result-box">
+                                        <div className="result-label">Potenza Necessaria</div>
+                                        <div className="result-value-large">{result.power} W</div>
+                                        <div className="result-value-medium">{result.powerKw} kW</div>
+                                    </div>
+                                    
+                                    <div className="result-box">
+                                        <div className="result-label">Potenza Specifica</div>
+                                        <div className="result-value-large">{result.specificPower} W/m²</div>
+                                        <div className="result-value-medium">su {result.floorArea} m²</div>
+                                    </div>
+                                </div>
+
+                                <div className="info-grid">
+                                    <div>
+                                        <div className="info-label">Volume</div>
+                                        <div className="info-value">{result.volume} m³</div>
+                                    </div>
+                                    <div>
+                                        <div className="info-label">Coefficiente Finale</div>
+                                        <div className="info-value">{result.coefficient} W/m³</div>
+                                    </div>
+                                    <div>
+                                        <div className="info-label">Superficie</div>
+                                        <div className="info-value">{result.floorArea} m²</div>
+                                    </div>
+                                </div>
+
+                                {result.corrections.length > 0 && (
+                                    <div className="corrections-box">
+                                        <div className="corrections-header">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                            </svg>
+                                            <span>Fattori Correttivi Applicati</span>
+                                        </div>
+                                        <ul className="corrections-list">
+                                            {result.corrections.map((correction, index) => (
+                                                <li key={index}>• {correction}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                <div className="advice-box">
+                                    <p><strong>Consiglio:</strong> Considera un margine di sicurezza del 10-20% per compensare dispersioni non previste e garantire comfort anche nelle giornate più fredde.</p>
+                                    <p><strong>Potenza consigliata:</strong> {(parseFloat(result.powerKw) * 1.15).toFixed(2)} - {(parseFloat(result.powerKw) * 1.20).toFixed(2)} kW</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {!result && (
+                            <div className="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                                    <line x1="8" y1="6" x2="16" y2="6"/>
+                                    <line x1="8" y1="10" x2="16" y2="10"/>
+                                    <line x1="8" y1="14" x2="16" y2="14"/>
+                                    <line x1="8" y1="18" x2="12" y2="18"/>
+                                </svg>
+                                <p>Inserisci le dimensioni dell'ambiente per calcolare la potenza necessaria</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="footer">
+                        <p>I calcoli sono basati su normative UNI EN 12831 e best practices del settore termotecnico italiano</p>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<HeatingCalculator />);
+    </script>
+
+    <script>
+        // Registra il service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrato:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Errore registrazione Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
